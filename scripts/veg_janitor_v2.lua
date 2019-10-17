@@ -6,6 +6,7 @@ dofile("janitor_utils/ui/widgets.inc")
 dofile("janitor_utils/ui/pages_widget.inc")
 dofile("janitor_utils/ui/colours.inc")
 
+dofile("janitor_utils/algorithms/screen_differ_widget.inc")
 dofile("janitor_utils/jobs/job_manager.inc")
 dofile("janitor_utils/jobs/window_manager.inc")
 dofile("janitor_utils/jobs/click_manager.inc")
@@ -20,7 +21,8 @@ function doit()
     local app = AppWidget(Padding {
         all = 10,
         child = PagesWidget({
-            { name = "JobStats", widget = JobManagerWidget(job_manager) },
+          { name = "Differ", widget = ScreenDifferWidget() },
+          { name = "JobStats", widget = JobManagerWidget(job_manager) },
         },
                 "JobStats",
                 {

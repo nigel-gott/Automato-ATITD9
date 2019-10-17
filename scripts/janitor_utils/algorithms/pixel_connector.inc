@@ -1,4 +1,4 @@
-dofile("veg_janitor/util.inc")
+dofile("janitor_utils/util/class.inc")
 
 function test_pixel_connector()
   local pixels = {
@@ -8,7 +8,7 @@ function test_pixel_connector()
     { 0, 0, 1, 1, 1 },
     { 1, 0, 1, 1, 1 },
   }
-  local connector = PixelConnector:new(5, 5, function(pixel)
+  local connector = PixelConnector(5, 5, function(pixel)
     return pixels[pixel.y][pixel.x] ~= 0
   end)
 
@@ -47,19 +47,15 @@ function assert_labelling_matches(actual_labels, expected_labelling)
   end
 end
 
-PixelConnector = {}
-function PixelConnector:new(width, height, get_function)
-  local o = {
-    width = width,
-    height = height,
-    get_function = get_function,
-    labelled_pixels = {},
-    labels = { ["nil"] = { id = 0 }, { id = 1, pixels = {} } },
-
-  }
-  o.nil_label = o.labels["nil"]
-  o.current_label = o.labels[1]
-  return newObject(self, o)
+PixelConnector = class { class_name = "PixelConnector" }
+function PixelConnector:init(width, height, get_function)
+  self.width = width
+  self.height = height
+  self.get_function = get_function
+  self.labelled_pixels = {}
+  self.labels = { ["nil"] = { id = 0 }, { id = 1, pixels = {} } }
+  self.nil_label = self.labels["nil"]
+  self.current_label = self.labels[1]
 end
 function PixelConnector:not_labelled(pixel)
   return not (self.labelled_pixels[pixel.y] and self.labelled_pixels[pixel.y][pixel.x]) or self.labelled_pixels[pixel.y][pixel.x] == self.nil_label

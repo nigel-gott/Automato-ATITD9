@@ -21,7 +21,11 @@ function test_pixel_connector()
     { 0, 0, 2, 2, 2 },
     { 4, 0, 2, 2, 2 },
   }
-  assert_labelling_matches(connector.labels, expected_labelling)
+  assert_labelling_matches(connector.labelled_pixels, expected_labelling)
+  assert(#connector.labels[1].pixels == 2)
+  assert(#connector.labels[2].pixels == 12)
+  assert(#connector.labels[3].pixels == 2)
+  assert(#connector.labels[4].pixels == 1)
 end
 
 function print_labelling(labels)
@@ -38,8 +42,7 @@ end
 function assert_labelling_matches(actual_labels, expected_labelling)
   for y, row in ipairs(expected_labelling) do
     for x, label in ipairs(row) do
-      assert(actual_labels[y])
-      assert(actual_labels[y][x].id == label, "at " .. x .. "," .. y ..  " - ".. actual_labels[y][x].id .. " != " .. label)
+      assert(actual_labels[y][x].id == label, "at " .. x .. "," .. y .. " - " .. actual_labels[y][x].id .. " != " .. label)
     end
   end
 end
@@ -50,14 +53,16 @@ function PixelConnector:new(width, height, get_function)
     width = width,
     height = height,
     get_function = get_function,
-    labels = {},
-    nil_label = {id = 0},
-    current_label = { id = 1, pixels = {} },
+    labelled_pixels = {},
+    labels = { ["nil"] = { id = 0 }, { id = 1, pixels = {} } },
+
   }
+  o.nil_label = o.labels["nil"]
+  o.current_label = o.labels[1]
   return newObject(self, o)
 end
 function PixelConnector:not_labelled(pixel)
-  return not (self.labels[pixel.y] and self.labels[pixel.y][pixel.x]) or self.labels[pixel.y][pixel.x] == self.nil_label
+  return not (self.labelled_pixels[pixel.y] and self.labelled_pixels[pixel.y][pixel.x]) or self.labelled_pixels[pixel.y][pixel.x] == self.nil_label
 end
 
 function PixelConnector:connect()
@@ -72,6 +77,7 @@ function PixelConnector:label_connecting_pixels(x, y)
   self:search_for_and_collect_connected_pixels { { x = x, y = y, previous_pixel = false } }
   if #self.current_label.pixels > 1 then
     self.current_label = { id = self.current_label.id + 1, pixels = {} }
+    table.insert(self.labels, self.current_label)
   end
 end
 
@@ -81,8 +87,8 @@ function PixelConnector:search_for_and_collect_connected_pixels(pixels_to_check)
     if self:not_labelled(next_pixel) then
       next_pixel.value = self.get_function(next_pixel)
       if next_pixel.value and self:connected(next_pixel, next_pixel.previous_pixel) then
-          self:add_pixel(next_pixel, self.current_label)
-          self:queue_up_surrounding_pixels(next_pixel, pixels_to_check)
+        self:add_pixel(next_pixel, self.current_label)
+        self:queue_up_surrounding_pixels(next_pixel, pixels_to_check)
       else
         self:add_pixel(next_pixel, self.nil_label)
       end
@@ -98,8 +104,8 @@ function PixelConnector:add_pixel(pixel, label)
   if label.pixels then
     table.insert(label.pixels, pixel)
   end
-  self.labels[pixel.y] = self.labels[pixel.y] or {}
-  self.labels[pixel.y][pixel.x] = label
+  self.labelled_pixels[pixel.y] = self.labelled_pixels[pixel.y] or {}
+  self.labelled_pixels[pixel.y][pixel.x] = label
 end
 
 function PixelConnector:queue_up_surrounding_pixels(p, pixels_to_check)

@@ -19,12 +19,12 @@ function test_array_2d()
       str = str .. "\n"
     end
   end
-  print(str)
+  assert(str == "100\n010\n001\n")
   local str = ""
   for xy, value in array:iterate(false) do
     str = str .. (tostring(value))
   end
-  print(str)
+  assert(str == "111")
 end
 
 Array2D = class { class_name = "Array2D" }
@@ -60,7 +60,6 @@ function Array2D:add(point, value)
   self.array[point.y] = self.array[point.y] or {}
   self.array[point.y][point.x] = value
 end
-
 
 local function iterate_including_missing (array, xy)
   xy.x = xy.x + 1

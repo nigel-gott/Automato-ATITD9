@@ -5,7 +5,7 @@ table.
 Example:
 ]]
 
-function __genOrderedIndex(t)
+function genOrderedIndex(t)
     local orderedIndex = {}
     for key in pairs(t) do
         table.insert(orderedIndex, key)
@@ -30,7 +30,7 @@ function orderedNext(t, state)
     local key = nil
     if state == nil then
         -- the first time, generate the index
-        t.__orderedIndex = __genOrderedIndex(t)
+        t.__orderedIndex = genOrderedIndex(t)
         key = t.__orderedIndex[1]
     else
         -- fetch the next value

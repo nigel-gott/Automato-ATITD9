@@ -23,19 +23,27 @@ function ScreenDifferWidget:render(render_box)
         return self.differ:changed(pixel)
       end)
       self.pixel_connector:connect()
+      self.shape = Shape(self.pixel_connector:max_label())
       self.state = "diffed"
     end }
   elseif self.state == "diffed" then
-    local colours = { RED, BLUE, GREEN, YELLOW, PINK, LIGHT_BLUE, PURPLE, BROWN }
-    for y, row in ipairs(self.pixel_connector.labelled_pixels) do
-      for x, value in ipairs(row) do
-        if value.id ~= 0 then
-          lsDisplaySystemSprite(1, render_box.x + x, render_box.y + y, render_box.z, 1, 1, colours[(value.id % (#colours - 1)) + 1]);
-        else
-          lsDisplaySystemSprite(1, render_box.x + x, render_box.y + y, render_box.z, 1, 1, srReadPixelFromBuffer(x + self.differ.box.x, y + self.differ.box.y));
-        end
+  end
+end
+
+ShapeWidget = class { class_name = "ShapeWidget" }
+function ShapeWidget:init(shape)
+  self.shape = shape
+
+end
+function ShapeWidget:render(render_box)
+  local colours = { RED, BLUE, GREEN, YELLOW, PINK, LIGHT_BLUE, PURPLE, BROWN }
+  for y, row in ipairs(self.shape.pixels) do
+    for x, value in ipairs(row) do
+      if value then
+        lsDisplaySystemSprite(1, render_box.x + x, render_box.y + y, render_box.z, 1, 1, RED);
       end
     end
-    return RenderResult(Box(render_box.top_left, #self.pixel_connector.labelled_pixels, #self.pixel_connector.labelled_pixels[1]))
   end
+  return RenderResult(Box(render_box.top_left, #self.shape.width, #self.shape.height))
+
 end

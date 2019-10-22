@@ -25,17 +25,50 @@ function test_array_2d()
     str = str .. (tostring(value))
   end
   assert(str == "111")
+  assert(array:get(10,10) == 1)
+  assert(not array:get(11,10) )
+end
+
+function test_array_factory()
+  local pixels = {
+    { 1, 1, 0, 1, 1 },
+    { 0, 0, 0, 1, 1 },
+    { 1, 1, 0, 1, 1 },
+    { 0, 0, 1, 1, 1 },
+    { 1, 0, 1, 1, 1 },
+  }
+  local array = Array2D(pixels)
+  for xy, value in array:iterate() do
+    assert(pixels[xy.y][xy.x] == value)
+  end
+  assert(array.width == 5)
+  assert(array.height == 5)
+  assert(array.min_x == 1)
+  assert(array.min_y == 1)
+  assert(array.max_y == 5)
+  assert(array.max_x == 5)
 end
 
 Array2D = class { class_name = "Array2D" }
-function Array2D:init()
+function Array2D:init(o)
   self.min_x = false
   self.min_y = false
   self.max_x = false
   self.max_y = false
-  self.system = false
   self.array = {}
   self.size = 0
+  if o and #o > 0 then
+    self.system = o.system or CoordinateSystem { name = "default_system_" .. tostring(o) }
+    for y, row in ipairs(o) do
+      for x, value in ipairs(row) do
+        self:add(Point2D(x, y, self.system), value)
+      end
+    end
+  end
+end
+
+function Array2D:get(x,y)
+  return self.array[y] and self.array[y][x]
 end
 
 function Array2D:add(point, value)
@@ -73,7 +106,7 @@ local function iterate_including_missing (array, xy)
   local offseted_y = xy.y + (array.min_y - 1)
   local offseted_x = xy.x + (array.min_x - 1)
   local v = array.array[offseted_y] and array.array[offseted_y][offseted_x]
-  if v then
+  if array.array[offseted_y] and v ~= nil then
     return xy, v
   else
     return xy, false
@@ -91,7 +124,9 @@ local function iterate_skipping_missing (array, xy)
   end
 end
 function Array2D:iterate(include_missing)
-  return include_missing and iterate_including_missing or iterate_skipping_missing, self, { x = 0, y = 1 }
+  local iter = include_missing and iterate_including_missing or iterate_skipping_missing
+  return iter, self, { x = 0, y = 1 }
 end
 
 test_array_2d()
+test_array_factory()

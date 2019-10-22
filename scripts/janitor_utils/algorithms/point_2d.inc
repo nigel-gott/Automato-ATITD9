@@ -22,6 +22,12 @@ function Point2D:init(x, y, system)
   self.x = x
   self.y = y
   self.system = system
+  assert(x)
+  assert(y)
+  assert(system, "Must provide a coord system when defining a point")
+end
+function Point2D:copy()
+  return Point2D(self.x , self.y , self.system)
 end
 
 function Point2D:__add(point)
@@ -43,6 +49,9 @@ function Point2D:__mul(multiplicand)
 end
 function Point2D:__unm()
   return self * -1
+end
+function Point2D:__eq(other)
+  return other.system == self.system and other.x == self.x and other.y == self.y
 end
 
 function Point2D:length()

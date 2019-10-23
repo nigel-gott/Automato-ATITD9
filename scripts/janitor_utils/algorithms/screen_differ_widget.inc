@@ -8,9 +8,10 @@ ScreenDifferWidget = class { class_name = "ScreenDifferWidget" }
 function ScreenDifferWidget:init()
   self.state = "initial"
   local xyScreenSize = srGetWindowSize();
+  local box_size = 600
   self.differ = ScreenDiffer(
-    Box(Vector(xyScreenSize[0] / 2 - xyScreenSize[0] / 8, xyScreenSize[1] / 2 - xyScreenSize[1] / 8, 0),
-       400, 400),
+    Box(Vector(xyScreenSize[0] / 2 - box_size, xyScreenSize[1] / 2 - box_size, 0),
+       box_size*2, box_size*2),
     CoordinateSystem { name = "screen" },
     srReadScreen,
     srReadPixelFromBuffer
@@ -53,7 +54,13 @@ function ShapeWidget:init(shape)
 end
 function ShapeWidget:render(render_box)
   for xy, pixel in self.shape.pixels:iterate() do
-    lsDisplaySystemSprite(1, render_box.x + xy.x, render_box.y + xy.y, render_box.z, 1, 1, RED);
+    local colour
+    if xy == self.shape.anchor_point then
+      colour = RED
+    else
+      colour = WHITE
+    end
+    lsDisplaySystemSprite(1, render_box.x + xy.x - self.shape.pixels.min_x, render_box.y + xy.y - self.shape.pixels.min_y, render_box.z, 1, 1, colour);
   end
   return RenderResult(Box(render_box.top_left, self.shape.pixels.width, self.shape.pixels.height))
 end

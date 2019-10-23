@@ -77,7 +77,7 @@ function Array2D:init(o)
     for y, row in ipairs(o) do
       for x, value in ipairs(row) do
         if value ~= o.nil_value then
-          self:add(Point2D(x, y, self.system), value)
+          self:add(Point2D(x, y, self.system) + (o.offset or Point2D(0,0,self.system)), value)
         end
       end
     end
@@ -176,7 +176,7 @@ function Array2D:iterate(include_missing)
   if self:empty() then
     return function() return nil end, nil, nil
   end
-  return iter, self, Point2D(self.min_x-1,self.min_x,self.system)
+  return iter, self, Point2D(self.min_x-1,self.min_y,self.system)
 end
 
 test_array_2d()

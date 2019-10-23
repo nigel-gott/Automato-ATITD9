@@ -43,23 +43,26 @@ function Shape:find_anchor_point()
   local count = 0
   local layers = 0
   while inner_pixels.size > 0 do
-    --print("Count is " .. count .. " layes is " .. layers .. " to check is " .. inner_pixels.size)
+    --print("Count is " .. count .. " layers is " .. layers .. " to check is " .. inner_pixels.size)
     for xy, value in inner_pixels:iterate(false) do
       local up = inner_pixels:get(xy.x, xy.y - 1)
       local down = inner_pixels:get(xy.x, xy.y + 1)
       local left = inner_pixels:get(xy.x - 1, xy.y)
       local right = inner_pixels:get(xy.x + 1, xy.y)
       if up and down and left and right then
+        --print("Adding inner " .. tostring(xy) .. " with value " .. tostring(value))
         next_inner_pixels:add(xy, value)
       else
+        --print("Skipping " .. tostring(xy))
         count = count + 1
       end
-      last_pixel = xy
+      last_pixel = xy:copy()
     end
     layers = layers + 1
     inner_pixels = next_inner_pixels
     next_inner_pixels = Array2D()
   end
+  --print("Anchor is " .. tostring(last_pixel))
   self.anchor_point = last_pixel
 end
 

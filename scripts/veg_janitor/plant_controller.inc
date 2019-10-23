@@ -399,7 +399,7 @@ function ScreenSearcher:findChangedRow(pixels, box)
             local innermost_pixel = self:find_innermost_pixel_for_label(max_label_queue)
             local x = box.left + innermost_pixel.x
             local y = box.top + innermost_pixel.y
-            return { vector = Vector:new { x, y }, pixel = srReadPixelFromBuffer(x, y) }
+            return { vector = VectorVegJanitor:new { x, y }, pixel = srReadPixelFromBuffer(x, y) }
         else
 
             local max_width = 0
@@ -434,7 +434,7 @@ function ScreenSearcher:findChangedRow(pixels, box)
             local box_y = max_width_y
             local x = box.left + box_x
             local y = box.top + box_y
-            return { vector = Vector:new { x, y }, pixel = srReadPixelFromBuffer(x, y) }
+            return { vector = VectorVegJanitor:new { x, y }, pixel = srReadPixelFromBuffer(x, y) }
         end
     else
         return false
@@ -549,7 +549,7 @@ end
 
 function ScreenSearcher:pixelDiff(pixels, x, y, box, classify)
     if not self.search_box or (y >= 0 and y <= box.height and x >= 0 and x <= box.width and self.search_box.area[y][x]) then
-        local inside_player = inside(Vector:new { box.left + x, box.top + y }, PLAYER_BOX)
+        local inside_player = inside(VectorVegJanitor:new { box.left + x, box.top + y }, PLAYER_BOX)
         if not inside_player then
             if classify then
                 local old_colour = "Y"

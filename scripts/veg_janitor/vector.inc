@@ -7,7 +7,7 @@ function findImageInWindowVec(image_name, vec)
         return false
     end
 
-    return Vector:new { x = this_loc[0] + 0, y = this_loc[1] + 0 }
+    return VectorVegJanitor:new { x = this_loc[0] + 0, y = this_loc[1] + 0 }
 end
 
 function find_and_click_image(image_name, vec)
@@ -39,44 +39,44 @@ function getWaitSpotAt(vector)
     return getWaitSpot(vector.x, vector.y)
 end
 -- Simple immutable vector class
-Vector = {}
-function Vector:new(o)
+VectorVegJanitor = {}
+function VectorVegJanitor:new(o)
     o.x = o.x or o[1]
     o.y = o.y or o[2]
     return newObject(self, o, true)
 end
 
-function Vector:__add(vector)
-    local x, y = Vector.getXY(vector)
-    return Vector:new { self.x + x, self.y + y }
+function VectorVegJanitor:__add(vector)
+    local x, y = VectorVegJanitor.getXY(vector)
+    return VectorVegJanitor:new { self.x + x, self.y + y }
 end
 
-function Vector:__sub(vector)
-    local x, y = Vector.getXY(vector)
-    return Vector:new { self.x - x, self.y - y }
+function VectorVegJanitor:__sub(vector)
+    local x, y = VectorVegJanitor.getXY(vector)
+    return VectorVegJanitor:new { self.x - x, self.y - y }
 end
 
-function Vector:__div(divisor)
-    return Vector:new { self.x / divisor, self.y / divisor }
+function VectorVegJanitor:__div(divisor)
+    return VectorVegJanitor:new { self.x / divisor, self.y / divisor }
 end
 
-function Vector:__mul(multiplicand)
-    return Vector:new { self.x * multiplicand, self.y * multiplicand }
+function VectorVegJanitor:__mul(multiplicand)
+    return VectorVegJanitor:new { self.x * multiplicand, self.y * multiplicand }
 end
 
-function Vector.getXY(vector)
+function VectorVegJanitor.getXY(vector)
     return vector.x or vector[1], vector.y or vector[2]
 end
 
-function Vector:length()
+function VectorVegJanitor:length()
     return math.sqrt(self.x ^ 2 + self.y ^ 2)
 end
 
-function Vector:normalize()
+function VectorVegJanitor:normalize()
     return self / self:length()
 end
 
-function Vector:__tostring()
+function VectorVegJanitor:__tostring()
     return "(" .. self.x .. ", " .. self.y .. ")"
 end
 

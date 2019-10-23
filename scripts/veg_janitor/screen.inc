@@ -26,5 +26,5 @@ end
 
 
 function getScreenMiddle() local xyWindowSize = srGetWindowSize()
-    return Vector:new { math.floor(xyWindowSize[0] / 2), math.floor(xyWindowSize[1] / 2) }
+    return VectorVegJanitor:new { math.floor(xyWindowSize[0] / 2), math.floor(xyWindowSize[1] / 2) }
 end

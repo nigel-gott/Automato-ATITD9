@@ -1,4 +1,5 @@
 dofile("janitor_utils/util/class.inc")
+dofile("janitor_utils/util/box.inc")
 dofile("janitor_utils/algorithms/point_2d.inc")
 
 function test_array_2d()
@@ -32,6 +33,15 @@ function test_array_2d()
   for _,_ in empty_array:iterate(true) do
     error("Failed")
   end
+
+  assert(array:inside(Point2D(10,10,screen)))
+  assert(array:inside(Point2D(12,12,screen)))
+  assert(array:inside(Point2D(10,12,screen)))
+  assert(array:inside(Point2D(12,10,screen)))
+  assert(not array:inside(Point2D(13,10,screen)))
+  assert(not array:inside(Point2D(10,13,screen)))
+  assert(not array:inside(Point2D(9,10,screen)))
+  assert(not array:inside(Point2D(10,9,screen)))
 end
 
 function test_array_factory()
@@ -76,6 +86,16 @@ end
 function Array2D:empty()
   return not self.min_x
 end
+
+function Array2D:inside(point)
+  return self:box():inside(point)
+
+end
+
+function Array2D:box()
+  return Box(Vector(self.min_x, self.min_y, 0), self.width, self.height)
+end
+
 
 function Array2D:get(x,y)
   if y then

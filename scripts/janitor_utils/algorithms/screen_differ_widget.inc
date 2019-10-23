@@ -8,7 +8,13 @@ ScreenDifferWidget = class { class_name = "ScreenDifferWidget" }
 function ScreenDifferWidget:init()
   self.state = "initial"
   local xyScreenSize = srGetWindowSize();
-  self.differ = ScreenDiffer(Box(Vector(xyScreenSize[0] / 2 - xyScreenSize[0] / 8, xyScreenSize[1] / 2 - xyScreenSize[1] / 8, 0), xyScreenSize[0] / 4, xyScreenSize[1] / 4))
+  self.differ = ScreenDiffer(
+    Box(Vector(xyScreenSize[0] / 2 - xyScreenSize[0] / 8, xyScreenSize[1] / 2 - xyScreenSize[1] / 8, 0),
+       400, 400),
+    CoordinateSystem { name = "screen" },
+    srReadScreen,
+    srReadPixelFromBuffer
+  )
 end
 
 function ScreenDifferWidget:render(render_box)
@@ -21,14 +27,15 @@ function ScreenDifferWidget:render(render_box)
     return Button { text = "Snapshot After", on_pressed = function()
       self.differ:snapshot()
       assert(self.differ.before_pixels.size > 10)
-      self.pixel_connector = PixelConnector(
-        self.differ.before_pixels,
-        function(a, b)
-          return self.differ:connected(a, b)
-        end, function(pixel)
-          return self.differ:changed(pixel)
-        end)
+      self.pixel_connector = self.differ:connector()
+      local start = lsGetTimer()
+      print('Starting connect')
       self.pixel_connector:connect()
+      print('connect took ' .. (lsGetTimer()-start)/1000 .. "s")
+      if not self.pixel_connector:max_label() then
+        self.state = "initial"
+        return
+      end
       assert(self.pixel_connector:max_label().pixels)
       assert(self.pixel_connector:max_label().pixels.size > 0)
       self.shape = Shape(self.pixel_connector:max_label().pixels)
@@ -48,5 +55,5 @@ function ShapeWidget:render(render_box)
   for xy, pixel in self.shape.pixels:iterate() do
     lsDisplaySystemSprite(1, render_box.x + xy.x, render_box.y + xy.y, render_box.z, 1, 1, RED);
   end
-  return RenderResult(Box(render_box.top_left, self.shape.width, self.shape.height))
+  return RenderResult(Box(render_box.top_left, self.shape.pixels.width, self.shape.pixels.height))
 end

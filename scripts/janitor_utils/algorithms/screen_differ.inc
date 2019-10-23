@@ -29,13 +29,7 @@ function test_screen_differ()
   differ:snapshot_and_store()
   current = after
   differ:snapshot()
-  local pixel_connector = PixelConnector(
-    differ.before_pixels,
-    function(a, b)
-      return differ:connected(a, b)
-    end, function(pixel)
-      return differ:changed(pixel)
-    end)
+  local pixel_connector = differ:connector()
   pixel_connector:connect()
   assert(pixel_connector:max_label())
   assert(pixel_connector:max_label().pixels.size == 5)
@@ -49,6 +43,15 @@ function ScreenDiffer:init(box, system, read_func, pixel_get_func)
   self.system = system
   self.read_func = read_func
   self.pixel_get_func = pixel_get_func
+end
+function ScreenDiffer:connector()
+  return PixelConnector(
+    self.before_pixels,
+    function(a, b)
+      return self:connected(a, b)
+    end, function(pixel)
+      return self:changed(pixel)
+    end)
 end
 function ScreenDiffer:snapshot()
   self.read_func()

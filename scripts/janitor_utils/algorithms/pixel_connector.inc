@@ -2,16 +2,18 @@ dofile("janitor_utils/util/class.inc")
 dofile("janitor_utils/algorithms/array_2d.inc")
 
 function test_pixel_connector()
-  local pixels = Array2D{
+  local pixels = Array2D {
     { 1, 1, 0, 1, 1 },
     { 0, 0, 0, 1, 1 },
     { 1, 1, 0, 1, 1 },
     { 0, 0, 1, 1, 1 },
     { 1, 0, 1, 1, 1 },
   }
-  assert(pixels:get(1,1) == 1, tostring(pixels:get(1,1)))
-  assert(pixels:get(3,1) == 0, tostring(pixels:get(1,1)))
-  local connector = PixelConnector(pixels, function(new, old) return new.value == 1 and (not old or old.value == 1) end)
+  assert(pixels:get(1, 1) == 1, tostring(pixels:get(1, 1)))
+  assert(pixels:get(3, 1) == 0, tostring(pixels:get(1, 1)))
+  local connector = PixelConnector(pixels, function(new, old)
+    return new.value == 1 and (not old or old.value == 1)
+  end)
 
   connector:connect()
 
@@ -68,30 +70,34 @@ end
 
 function PixelConnector:connect()
   for xy, value in self.pixels:iterate(true) do
-      self:label_connecting_pixels(xy)
+    --print("Connecting " .. tostring(xy))
+    self:label_connecting_pixels(xy)
   end
 end
 
 function PixelConnector:label_connecting_pixels(xy)
-  self:search_for_and_collect_connected_pixels { { xy=xy, previous_pixel = false } }
+  self:search_for_and_collect_connected_pixels { { xy = xy, previous_pixel = false } }
   if self.current_label.pixels.size > 1 then
-    self.current_label = { id = self.current_label.id + 1, pixels = Array2D()}
+    self.current_label = { id = self.current_label.id + 1, pixels = Array2D() }
     table.insert(self.labels, self.current_label)
   end
 end
 
 function PixelConnector:search_for_and_collect_connected_pixels(pixels_to_check)
   while #pixels_to_check > 0 do
+    --print(#pixels_to_check .. " remaining to check")
     local next_pixel = table.remove(pixels_to_check)
-    if self:not_labelled(next_pixel) then
+    if self:not_labelled(next_pixel) and self.pixels:inside(next_pixel.xy) then
       next_pixel.value = self.pixels:get(next_pixel.xy)
       if self.getter_func then
         next_pixel.value = self.getter_func(next_pixel)
       end
       if next_pixel.value and self:connected(next_pixel, next_pixel.previous_pixel) then
+        --print("Adding " .. tostring(next_pixel.xy) .. "=" .. next_pixel.value .. " to label " .. self.current_label.id)
         self:add_pixel(next_pixel, self.current_label)
         self:queue_up_surrounding_pixels(next_pixel, pixels_to_check)
       else
+        --print("Skipping " .. tostring(next_pixel.xy) .. "=" .. tostring(next_pixel.value) .. " for label " .. self.current_label.id)
         self:add_pixel(next_pixel, self.nil_label)
       end
     end
@@ -113,12 +119,12 @@ end
 function PixelConnector:queue_up_surrounding_pixels(p, pixels_to_check)
   local locations = {
     { x = 1, y = 0, },
-    { x = - 1, y = 0, },
+    { x = -1, y = 0, },
     { x = 0, y = 1, },
-    { x = 0, y = - 1, }
+    { x = 0, y = -1, }
   }
   for _, location in ipairs(locations) do
-    table.insert(pixels_to_check, {xy=p.xy + Point2D(location.x, location.y, p.xy.system), previous_pixel=p})
+    table.insert(pixels_to_check, { xy = p.xy + Point2D(location.x, location.y, p.xy.system), previous_pixel = p })
   end
 end
 function PixelConnector:max_label()
@@ -132,10 +138,10 @@ function PixelConnector:max_label()
     end
   end
   if not max_index or max_size == 0 then
-    error("Failed to find max label")
+    return false
+  else
+    return self.labels[max_index]
   end
-  return self.labels[max_index]
 end
-
 
 test_pixel_connector()

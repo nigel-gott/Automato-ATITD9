@@ -13,6 +13,10 @@ function Box:init(top_left, width, height)
     self.height = height
 end
 
+function Box:inside(xy)
+  return xy.x >= self.x and xy.x < (self.x+self.width) and xy.y >= self.y and xy.y < (self.y+self.height)
+end
+
 
 function Box:__tostring()
     return "Box{top_left=" .. tostring(self.top_left) .. ", width=" .. self.width .. ", height=" .. self.height .. "}"
